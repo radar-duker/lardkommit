@@ -30,6 +30,7 @@ namespace Khali {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 string[] ips = null;
+                string[] netlist = null;
 
                 if (args.Contains("-kalihost")) {
 
@@ -50,7 +51,7 @@ namespace Khali {
                         count++;
                     }
 
-                    ips = sockets.Select(p => p.RemoteEndPoint.ToString().Split(':')[0]).ToArray();
+                    ips = sockets.Select(p => p.RemoteEndPoint.ToString()).ToArray();
 
                     var dictionary = new Dictionary<string, object>();
 
@@ -67,6 +68,7 @@ namespace Khali {
 
                     Thread.Sleep(delay);
 
+                    netlist = new[] { $"interface {ip}:{udp}", "mode peer" }.Concat(ips.Select(i => $"allow {i}")).ToArray();
                 } else {
 
                     var hostIp = args.First(arg => arg.StartsWith("/k")).Replace("/k", "");
@@ -90,9 +92,9 @@ namespace Khali {
                         ips = net.Where(n => n != $"{joinIp}").Concat(new[] { $"{hostIp}" }).ToArray();
                     }
 
+                    netlist = new[] { $"interface {ip}:{udp}", "mode peer" }.Concat(ips.Select(i => $"allow {i}:{udp}")).ToArray();
                 }
 
-                var netlist = new[] { $"interface {ip}:{udp}", "mode peer" }.Concat(ips.Select(i => $"allow {i}:{udp}")).ToArray();
                 //var duke = args[0].Split('=')[1].Replace(@"""", "");
                 //var dir = Path.GetDirectoryName(duke);
                 var netpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "netlist.txt");
