@@ -92,7 +92,15 @@ namespace Khali {
                         ips = net.Where(n => n != $"{joinIp}").Concat(new[] { $"{hostIp}" }).ToArray();
                     }
 
-                    netlist = new[] { $"interface {ip}:{udp}", "mode peer" }.Concat(ips.Select(i => $"allow {i}:{udp}")).ToArray();
+                    netlist = new string[ips.Count() + 2];
+
+                    netlist[0] = "interface " + ip + ":" + udp;
+                    netlist[1] = "mode peer";
+
+                    for (int i = 1; i < ips.Count(); i++)
+                    {
+                        netlist[i + 1] = "allow " + ips[i] + ":" + udp;
+                    }
                 }
 
                 //var duke = args[0].Split('=')[1].Replace(@"""", "");
